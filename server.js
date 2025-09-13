@@ -7,6 +7,7 @@ require('dotenv').config();
 // Initialize express app
 const app = express();
 
+
 // Middleware
 app.use(cors());
 app.use(bodyParser.json()); // parse application/json
@@ -19,6 +20,9 @@ const MONGO_URI = process.env.MONGO_URI;
 mongoose.connect(process.env.MONGO_URI)
 .then(() => console.log('✅ MongoDB connected'))
 .catch(err => console.error('❌ MongoDB connection error:', err));
+
+const chatRoute = require("./routes/chat"); // Initialize chatRoute i.e chat.js from routes
+app.use("/chat", chatRoute); // Route
 
 // Basic Route
 app.get('/', (req, res) => {
