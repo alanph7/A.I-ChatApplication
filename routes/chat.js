@@ -1,11 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const OpenAI = require("openai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// Initialize OpenAI client configuration
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize Gemini client configuration
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // POST /chat (actions)
 router.post("/", async (req, res) => {
@@ -16,20 +14,21 @@ router.post("/", async (req, res) => {
       return res.status(400).json({ error: "Message is required" });
     }
 
-    // Call OpenAI ChatGPT API
-    const response = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // you can use "gpt-4o" or "gpt-3.5-turbo" too
-      messages: [
-        { role: "system", content: "You are a helpful AI assistant." },
-        { role: "user", content: message },
-      ],
-    });
+    // Utilizing free-tier Google Gemini model
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-    const reply = response.choices[0].message.content;
+    // Sending prompt
+    const result = await model.generateContent([
+      "You are a helpful AI assistant.",
+      message,
+    ]);
+
+    // Extracting reply text
+    const reply = result.response.text();
 
     res.json({ reply });
   } catch (error) {
-    console.error("Chat API Error:", error);
+    console.error("Gemini Chat API Error:", error);
     res.status(500).json({ error: "Something went wrong" });
   }
 });
