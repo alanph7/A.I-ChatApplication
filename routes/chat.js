@@ -6,7 +6,7 @@ const axios = require("axios"); // Use axios instead of node-fetch for consisten
 
 // Initialize Gemini client
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
 
 /**
  * GET /chat/history
@@ -37,7 +37,7 @@ router.post("/", async (req, res) => {
     await userMsg.save();
 
     // Detect image request based on keywords
-    const imageKeywords = ["image of", "show me", "generate image", "picture of"];
+    const imageKeywords = ["image of", "show me", "generate image", "picture of", "looks like", "image", "create an image", "picture of"];
     const lowerMsg = message.toLowerCase();
 
     if (imageKeywords.some(keyword => lowerMsg.includes(keyword))) {
@@ -95,8 +95,6 @@ router.post("/", async (req, res) => {
     let aiReply = "⚠️ Sorry, I could not generate a reply.";
     try {
       const result = await model.generateContent(message);
-      console.log("✅ Gemini raw result:", result);
-
       if (result?.response?.text) {
         aiReply = result.response.text();
       }
